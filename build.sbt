@@ -1,9 +1,11 @@
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalaVersion := "2.13.13"
 
-val pekkoVersion = "1.0.1"
-val pekkoHttpVersion = "1.0.0"
+resolvers += Resolver.ApacheMavenStagingRepo
+
+val pekkoVersion = "1.0.2"
+val pekkoHttpVersion = "1.0.1"
 
 lazy val root = (project in file("."))
   .settings(
@@ -13,6 +15,7 @@ lazy val root = (project in file("."))
       "org.apache.pekko" %% "pekko-stream" % pekkoVersion,
       "org.apache.pekko" %% "pekko-slf4j" % pekkoVersion,
       "org.apache.pekko" %% "pekko-http" % pekkoHttpVersion,
-      "org.slf4j" % "slf4j-simple" % "2.0.9"
+      "org.slf4j" % "slf4j-simple" % "2.0.12"
     )
   )
+
