@@ -15,7 +15,8 @@ lazy val root = (project in file("."))
       "org.apache.pekko" %% "pekko-stream" % pekkoVersion,
       "org.apache.pekko" %% "pekko-slf4j" % pekkoVersion,
       "org.apache.pekko" %% "pekko-http" % pekkoHttpVersion,
-      "org.slf4j" % "slf4j-simple" % "2.0.16"
+      "org.slf4j" % "slf4j-simple" % "2.0.16",
+      "com.konghq" % "unirest-java-core" % "4.4.5"
     )
   )
 

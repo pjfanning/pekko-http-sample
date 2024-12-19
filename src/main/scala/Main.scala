@@ -1,15 +1,12 @@
 package io.github.pjfanning.pekko.http
 
+import kong.unirest.core.Unirest
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.server.{Directives, Route}
-import org.apache.pekko.http.scaladsl.{ConnectionContext, Http}
+import org.apache.pekko.http.scaladsl.Http
 
-import java.nio.file.{Files, Paths}
-import java.security.KeyStore
-import javax.net.ssl.{KeyManagerFactory, SSLContext}
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.concurrent.duration.Duration
-import scala.util.Using
+import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.duration.DurationInt
 
 object Main extends App with Directives {
 
@@ -17,26 +14,22 @@ object Main extends App with Directives {
   sys.addShutdownHook(system.terminate())
   implicit val executionContext: ExecutionContext = system.dispatcher
 
-  // keystore.jks is provided just for this demo - do not use it in production applications
-  val keyStore = KeyStore.getInstance(KeyStore.getDefaultType)
-  val pwd = "changeit"
-  Using.resource(Files.newInputStream(Paths.get("keystore.jks"))) { fos =>
-    keyStore.load(fos, pwd.toCharArray)
-  }
-  val keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm)
-  keyManagerFactory.init(keyStore, pwd.toCharArray)
-
-  val sslContext = SSLContext.getInstance("TLS")
-  sslContext.init(keyManagerFactory.getKeyManagers, null, null)
-
-  val f = for {
-    bindingFuture <- Http().newServerAt("0.0.0.0", 8443)
-      .enableHttps(ConnectionContext.httpsServer(sslContext))
+  val bindingFuture = Http().newServerAt("0.0.0.0", 8080)
       .bind(hello)
-    waitOnFuture <- Future.never
-  } yield waitOnFuture
 
-  Await.ready(f, Duration.Inf)
+  val binding = Await.result(bindingFuture, 10.seconds)
+
+  println("Server online at http://localhost:8080/")
+
+  val req = Unirest.get("http://localhost:8080/hello")
+  println("response1 " + req.asString().getBody)
+
+  val bindingEvent = Await.result(binding.terminate(1.minute), 1.minute)
+  println("terminateEvent " + bindingEvent)
+
+  println("response2 " + req.asString().getBody)
+
+  //Thread.sleep(1000000)
 
   def hello: Route =
     path("hello") {
